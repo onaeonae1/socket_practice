@@ -17,6 +17,7 @@ public class Client {
         this.userId = userId;
         try{
             socket = new Socket("localhost", 2013);
+            System.out.println(socket);
             scanner = new BufferedReader(new InputStreamReader(System.in));
             input = new BufferedReader(new InputStreamReader((socket.getInputStream())));
             output = new PrintWriter(socket.getOutputStream());

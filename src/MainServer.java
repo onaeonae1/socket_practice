@@ -6,20 +6,24 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 
 public class MainServer {
-    public static void main(String[] args) {
-        ServerSocket server = null;
-        Socket socket = null;
-        HashMap<String, PrintWriter> writerMap = new HashMap<>();
+    ServerSocket server = null;
+    Socket socket = null;
+    HashMap<String, PrintWriter> writerMap = new HashMap<>();
+    public MainServer(){
         try {
             server = new ServerSocket(2013);
             System.out.println("연결 대기");
 
             while(true){
                 socket = server.accept();
+                System.out.println(socket);
                 if(socket != null){
                     SocketAddress targetAddress = socket.getLocalSocketAddress();
                     System.out.println("Connected " + targetAddress);
-                    new ServerSocketThread(socket, writerMap).run();
+                    new ServerSocketThread(socket, writerMap).start();
+                }
+                else{
+                    System.out.println("socket error fucked up!");
                 }
 
             }
@@ -27,6 +31,9 @@ public class MainServer {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public static void main(String[] args) {
+        new MainServer();
     }
 }
 
@@ -40,15 +47,15 @@ class ServerSocketThread extends Thread{
     public ServerSocketThread(
             Socket socket,
             HashMap<String, PrintWriter> writerMap
-    ){f
-        this.socket = socket;`
+    ){
+        this.socket = socket;
         this.writerMap = writerMap;
         try{
             input = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream());
             userId  = input.readLine();
             ipAddress = socket.getInetAddress();
-            System.out.println(""+this.ipAddress);
+            System.out.println(this.userId+""+this.ipAddress);
             synchronized (writerMap){
                 writerMap.put(userId, output);
             }
@@ -70,7 +77,8 @@ class ServerSocketThread extends Thread{
                 }
                 else{
                     // 전체 메시지
-                    System.out.println(userId+" >>> "+receiveMessage);
+                    receiveMessage = userId + ">>>" + receiveMessage;
+                    System.out.println(receiveMessage);
                     this.broadMessage(receiveMessage);
                 }
             }
